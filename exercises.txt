@@ -1,0 +1,135 @@
+[Chest]
+Bench Press
+Incline Bench Press
+Decline Bench Press
+Dumbbell Bench Press
+Incline Dumbbell Press
+Chest Fly (Machine)
+Dumbbell Fly
+Cable Fly
+Pec Deck
+Push-ups
+Incline Push-ups
+Decline Push-ups
+Chest Dips
+Single-arm Cable Fly
+Squeeze Press
+
+[Back]
+Lat Pulldown
+Pull-ups
+Chin-ups
+Seated Row
+Barbell Row
+Dumbbell Row
+T-Bar Row
+Cable Row
+Face Pull
+Deadlift
+Straight Arm Pulldown
+Reverse Fly
+Machine Row
+Resistance Band Row
+Inverted Row
+
+[Shoulders]
+Shoulder Press
+Dumbbell Shoulder Press
+Barbell Shoulder Press
+Arnold Press
+Lateral Raises
+Front Raises
+Rear Delt Fly
+Cable Lateral Raise
+Upright Row
+Shrugs
+Machine Shoulder Press
+Plate Raises
+Face Pull (rear delt)
+Reverse Pec Deck
+Pike Push-ups
+
+[Legs]
+Squat
+Leg Press
+Lunges
+Walking Lunges
+Bulgarian Split Squat
+Step-ups
+Leg Curl
+Leg Extension
+Deadlift
+Romanian Deadlift
+Hip Thrust
+Glute Bridge
+Calf Raises
+Seated Calf Raise
+Wall Sit
+
+[Biceps]
+Barbell Curl
+Dumbbell Curl
+Hammer Curl
+Concentration Curl
+Preacher Curl
+Cable Curl
+Incline Dumbbell Curl
+EZ Bar Curl
+Spider Curl
+Reverse Curl
+Cross-body Curl
+Machine Curl
+Resistance Band Curl
+Zottman Curl
+Chin-ups (biceps focus)
+
+[Triceps]
+Tricep Pushdown
+Overhead Tricep Extension
+Skullcrusher
+Close-Grip Bench Press
+Bench Dips
+Cable Overhead Extension
+Rope Pushdown
+Kickbacks
+Machine Tricep Extension
+Diamond Push-ups
+Single-arm Pushdown
+Bar Pushdown
+EZ Bar Extension
+Resistance Band Extension
+Floor Press (close grip)
+
+[Core / Abs]
+Crunch
+Sit-ups
+Leg Raises
+Hanging Leg Raises
+Plank
+Side Plank
+Russian Twists
+Bicycle Crunch
+Mountain Climbers
+Flutter Kicks
+Toe Touches
+V-ups
+Reverse Crunch
+Ab Rollout
+Dead Bug
+
+[Full Body]
+Deadlift
+Clean and Press
+Burpees
+Kettlebell Swing
+Thrusters
+Squat to Press
+Farmer's Walk
+Battle Ropes
+Jump Squats
+Push Press
+Snatch (light)
+Sled Push
+Row + Squat combo
+Lunge + Curl combo
+Jump Rope

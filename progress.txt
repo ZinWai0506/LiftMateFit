@@ -1,0 +1,7 @@
+[Progress]
+streak=0
+totalDays=0
+
+[History]
+
+[Dates]

@@ -1,0 +1,17 @@
+[Weight Loss]
+Chicken
+Vegetables
+Oats
+
+[Muscle Gain]
+Eggs
+Chicken
+Rice
+Yogurt
+Shake
+
+[General]
+Balanced meals
+Fruit
+Water
+

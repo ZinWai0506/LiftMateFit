@@ -1,0 +1,13 @@
+# macOS
+.DS_Store
+
+# Qt Creator and qmake build files
+.qmake.stash
+Makefile
+.qtcreator/
+*.pro.user
+
+# Build outputs
+*.o
+LiftMate.app/
+
