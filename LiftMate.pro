@@ -17,6 +17,7 @@ SOURCES += \
     ProgressTracker.cpp
 
 HEADERS += \
+    Profile.h \
     MainWindow.h \
     User.h \
     Calculator.h \

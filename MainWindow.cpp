@@ -1,4 +1,4 @@
-// MainWindow.cpp
+        // MainWindow.cpp
 // This file builds the UI and handles the simple app logic.
 
 #include "MainWindow.h"
@@ -18,6 +18,7 @@
 #include <QVBoxLayout>
 #include <QWidget>
 
+#include <iostream>
 #include <fstream>
 #include <string>
 #include <vector>
@@ -78,6 +79,10 @@ MainWindow::MainWindow(QWidget *parent)
       selectedMuscleGroup("Chest"),
       planReady(false)
 {
+    // Load default exercise data, meal file data, and saved progress
+    // before building the interface.
+    // This constructor also uses an initializer list above.
+    // It gives starting values to many pointers and variables.
     initializeExerciseData();
     mealPlan.loadFromFile("meal_plans.txt");
     progressTracker.loadFromFile("progress.txt");
@@ -87,9 +92,12 @@ MainWindow::MainWindow(QWidget *parent)
 
 void MainWindow::createUi()
 {
+    // This builds the top-level stacked window:
+    // Page 1 is the input page and Page 2 is the dashboard.
     setWindowTitle("LiftMate - Beginner Fitness Tracker");
     resize(900, 620);
 
+    // auto * means C++ figures out the pointer type automatically.
     auto *mainLayout = new QVBoxLayout(this);
 
     mainStack = new QStackedWidget(this);
@@ -107,6 +115,8 @@ void MainWindow::createUi()
 
 void MainWindow::createInputPage()
 {
+    // This page is where the user enters personal data
+    // before a workout plan is created.
     inputPage = new QWidget(this);
 
     auto *layout = new QVBoxLayout(inputPage);
@@ -127,6 +137,7 @@ void MainWindow::createInputPage()
     auto *daysLabel = new QLabel("Days", inputPage);
     auto *typeLabel = new QLabel("Type", inputPage);
 
+    // These widget pointers now point to real input boxes.
     ageEdit = new QLineEdit(inputPage);
     heightEdit = new QLineEdit(inputPage);
     weightEdit = new QLineEdit(inputPage);
@@ -160,6 +171,8 @@ void MainWindow::createInputPage()
     layout->addWidget(generateButton);
     layout->addStretch();
 
+    // connect links a button click to the code that should run.
+    // [this] lets the lambda use MainWindow's functions and variables.
     connect(generateButton, &QPushButton::clicked, this, [this]() {
         generatePlan();
     });
@@ -167,6 +180,8 @@ void MainWindow::createInputPage()
 
 void MainWindow::createDashboardPage()
 {
+    // This page is the main app dashboard after a plan is generated.
+    // It contains the sidebar and the right-side content area.
     dashboardPage = new QWidget(this);
 
     auto *outerLayout = new QVBoxLayout(dashboardPage);
@@ -200,6 +215,7 @@ void MainWindow::createDashboardPage()
 
     auto *bodyLayout = new QHBoxLayout();
 
+    // menuWidget is the left sidebar container.
     auto *menuWidget = new QWidget(dashboardPage);
     menuWidget->setObjectName("menuWidget");
     menuWidget->setFixedWidth(160);
@@ -217,6 +233,8 @@ void MainWindow::createDashboardPage()
     menuLayout->addWidget(exercisesButton);
     menuLayout->addStretch();
 
+    // contentStack is the right-side page area that changes
+    // when the sidebar buttons are clicked.
     contentStack = new QStackedWidget(dashboardPage);
     contentStack->addWidget(createPlansPage());
     contentStack->addWidget(createMealsPage());
@@ -229,6 +247,7 @@ void MainWindow::createDashboardPage()
     outerLayout->addLayout(headerRow);
     outerLayout->addLayout(bodyLayout);
 
+    // Each sidebar button changes the visible page on the right side.
     connect(plansButton, &QPushButton::clicked, this, [this]() {
         showPlansPage();
     });
@@ -250,6 +269,8 @@ void MainWindow::createDashboardPage()
 
 QWidget *MainWindow::createPlansPage()
 {
+    // This page shows the current workout,
+    // exercise checklist, progress bar, and action buttons.
     auto *page = new QWidget(this);
     auto *layout = new QVBoxLayout(page);
 
@@ -280,6 +301,7 @@ QWidget *MainWindow::createPlansPage()
     smartMessageLabel = new QLabel("Let's get started today.", page);
     smartMessageLabel->setWordWrap(true);
 
+    // This layout keeps the three action buttons in one row.
     auto *buttonLayout = new QHBoxLayout();
     buttonLayout->addWidget(showMealPlanButton);
     buttonLayout->addWidget(restartPlanButton);
@@ -358,6 +380,8 @@ QWidget *MainWindow::createHistoryPage()
 
 QWidget *MainWindow::createExercisesPage()
 {
+    // This page works like a simple exercise library.
+    // The user clicks a muscle group and sees matching exercises.
     auto *page = new QWidget(this);
     auto *layout = new QVBoxLayout(page);
     layout->setSpacing(10);
@@ -377,11 +401,14 @@ QWidget *MainWindow::createExercisesPage()
     coreButton = new QPushButton("Core / Abs", page);
     fullBodyButton = new QPushButton("Full Body", page);
 
+    // Store all muscle group buttons in one vector
+    // so they can be styled together later.
     muscleGroupButtons = {chestButton, backButton, shouldersButton, legsButton, bicepsButton, tricepsButton, coreButton, fullBodyButton};
 
     layout->addWidget(titleLabel);
     layout->addWidget(exerciseLibrarySubtitleLabel);
 
+    // Loop through the vector and place each button on the page.
     for (std::size_t i = 0; i < muscleGroupButtons.size(); ++i)
     {
         layout->addWidget(muscleGroupButtons[i]);
@@ -484,6 +511,8 @@ bool MainWindow::readUserInput()
     bool heightOk = false;
     bool weightOk = false;
 
+    // Qt tries to convert text into numbers here.
+    // The bool variables become true if conversion succeeds.
     int age = ageEdit->text().toInt(&ageOk);
     double height = heightEdit->text().toDouble(&heightOk);
     double weight = weightEdit->text().toDouble(&weightOk);
@@ -501,17 +530,21 @@ bool MainWindow::readUserInput()
                         goalComboBox->currentText().toStdString(),
                         days,
                         typeComboBox->currentText().toStdString());
+    // toStdString changes QString text from the UI
+    // into std::string for the normal C++ classes.
 
     return true;
 }
 
 void MainWindow::generatePlan()
 {
+    // Stop here if the input values are not valid.
     if (!readUserInput())
     {
         return;
     }
 
+    // Use the other project classes to build the user's plan.
     calculator.calculate(currentUser);
     workoutPlan = WorkoutPlan();
     currentSmartMessage = "Let's get started today.";
@@ -526,6 +559,7 @@ void MainWindow::generatePlan()
 
 void MainWindow::completeDay()
 {
+    // Do nothing if the user has not generated a plan yet.
     if (!planReady)
     {
         return;
@@ -567,6 +601,7 @@ void MainWindow::showExercisesPage()
 
 void MainWindow::updateDashboard()
 {
+    // Refresh all visible sections after data changes.
     updateStatsBox();
     updatePlansPage();
     updateMealsPage();
@@ -594,6 +629,8 @@ void MainWindow::updatePlansPage()
                    + " - "
                    + QString::fromStdString(workoutPlan.getDayPlan(currentUser.days))
                    + " (" + QString::fromStdString(currentUser.type) + ")";
+    // QString::fromStdString converts normal C++ strings
+    // back into Qt text so labels can display them.
 
     currentDayLabel->setText(text);
     completeDayButton->setEnabled(true);
@@ -620,6 +657,8 @@ void MainWindow::updateMealsPage()
 
 void MainWindow::updateHistoryPage()
 {
+    // This page reads progress data from ProgressTracker
+    // and shows it as text in the dashboard.
     streakLabel->setText(QString::fromUtf8("🔥 Streak: ")
                          + QString::number(progressTracker.getStreak()) + " days");
     totalWorkoutsLabel->setText("Total workouts: " + QString::number(progressTracker.getTotalDays()));
@@ -628,10 +667,14 @@ void MainWindow::updateHistoryPage()
 
 void MainWindow::updateExerciseRows()
 {
+    // Clear the old exercise rows and rebuild the list
+    // for the currently selected workout day.
     exerciseCheckBoxes.clear();
 
     while (exerciseLayout->count() > 0)
     {
+        // takeAt removes one layout item at a time.
+        // We delete the old widgets so the page can be rebuilt cleanly.
         QLayoutItem *item = exerciseLayout->takeAt(0);
 
         if (item->widget() != nullptr)
@@ -652,10 +695,12 @@ void MainWindow::updateExerciseRows()
         return;
     }
 
+    // Ask WorkoutPlan for today's exercises.
     std::vector<std::string> exercises = workoutPlan.getExercises(currentUser.days, currentUser.type);
 
     for (std::size_t i = 0; i < exercises.size(); ++i)
     {
+        // Each row is a small widget with a label and one checkbox.
         auto *rowWidget = new QWidget(exerciseContainer);
         auto *rowLayout = new QHBoxLayout(rowWidget);
         auto *exerciseLabel = new QLabel(QString::fromStdString(exercises[i]), rowWidget);
@@ -669,6 +714,7 @@ void MainWindow::updateExerciseRows()
         rowLayout->addWidget(checkBox);
 
         exerciseLayout->addWidget(rowWidget);
+        // Save the checkbox pointer so progress can be counted later.
         exerciseCheckBoxes.push_back(checkBox);
 
         connect(checkBox, &QCheckBox::toggled, this, [this]() {
@@ -681,11 +727,13 @@ void MainWindow::updateExerciseRows()
 
 void MainWindow::updateExerciseProgress()
 {
+    // size() gives the number of checkbox pointers stored in the vector.
     int totalExercises = static_cast<int>(exerciseCheckBoxes.size());
     int completedExercises = 0;
 
     for (std::size_t i = 0; i < exerciseCheckBoxes.size(); ++i)
     {
+        // -> is used with pointers to access a function or variable inside the object.
         if (exerciseCheckBoxes[i]->isChecked())
         {
             completedExercises++;
@@ -724,6 +772,8 @@ void MainWindow::updateExerciseProgress()
 
 void MainWindow::updateMenuSelection(QPushButton *selectedButton)
 {
+    // Build two style strings:
+    // one for normal buttons and one for the selected button.
     QString normalStyle =
         "QPushButton {"
         "background-color: #dcdde1;"
@@ -755,6 +805,8 @@ void MainWindow::updateMenuSelection(QPushButton *selectedButton)
 
 void MainWindow::updateMuscleGroupSelection(QPushButton *selectedButton)
 {
+    // This works the same way as the sidebar highlight,
+    // but for the exercise library buttons.
     QString normalStyle =
         "QPushButton {"
         "background-color: #dcdde1;"
@@ -787,6 +839,7 @@ void MainWindow::updateMuscleGroupSelection(QPushButton *selectedButton)
 QString MainWindow::buildHistoryText() const
 {
     std::vector<std::string> history = progressTracker.getHistory();
+    // getHistory returns a vector of text lines from ProgressTracker.
 
     if (history.empty())
     {
@@ -825,6 +878,7 @@ QString MainWindow::randomCompletionMessage() const
         return "Nice work today!";
     }
 
+    // Pick one random message from the vector.
     int index = QRandomGenerator::global()->bounded(static_cast<int>(completionMessages.size()));
     return QString::fromStdString(completionMessages[index]);
 }
@@ -836,6 +890,7 @@ void MainWindow::showMealPlan()
         return;
     }
 
+    // Show the meal text in a small popup message box.
     QMessageBox::information(this,
                              "Meal Plan",
                              QString::fromStdString(mealPlan.getMeal(currentUser.goal)));
@@ -869,6 +924,8 @@ void MainWindow::updateStatsBox()
 
 void MainWindow::loadMuscleGroup(const QString &muscleGroup)
 {
+    // This function is used by the Exercises page.
+    // It shows the exercise library for the selected muscle group.
     selectedMuscleGroup = muscleGroup;
     muscleExerciseListWidget->clear();
 
@@ -890,6 +947,7 @@ void MainWindow::loadMuscleGroup(const QString &muscleGroup)
 void MainWindow::initializeExerciseData()
 {
     // These are the default exercises used if the text file is missing.
+    // The data can later be replaced by exercises.txt.
     exercises["Chest"] = {"Bench Press", "Incline Bench Press", "Decline Bench Press", "Dumbbell Bench Press", "Incline Dumbbell Press",
                           "Chest Fly (Machine)", "Dumbbell Fly", "Cable Fly", "Pec Deck", "Push-ups",
                           "Incline Push-ups", "Decline Push-ups", "Chest Dips", "Single-arm Cable Fly", "Squeeze Press"};
@@ -927,58 +985,85 @@ void MainWindow::initializeExerciseData()
 
 void MainWindow::loadExercisesFromFile(const std::string &fileName)
 {
-    std::ifstream inputFile(fileName.c_str());
-
-    // If the file does not exist yet, write the default exercise data first.
-    if (!inputFile.is_open())
+    // This try/catch block handles file loading problems for exercises.txt.
+    try
     {
-        saveExercisesToFile(fileName);
-        return;
-    }
+        // This reads exercise names from exercises.txt.
+        // If the file does not exist, the program creates it first.
+        std::ifstream inputFile(fileName.c_str());
 
-    std::map<std::string, std::vector<std::string>> loadedExercises;
-    std::string line;
-    std::string currentGroup;
-
-    while (std::getline(inputFile, line))
-    {
-        if (line.empty())
+        // If the file does not exist yet, throw so the catch block can use defaults.
+        if (!inputFile.is_open())
         {
-            continue;
+            throw "exercises.txt could not be opened.";
         }
 
-        if (line.front() == '[' && line.back() == ']')
-        {
-            currentGroup = line.substr(1, line.size() - 2);
-            loadedExercises[currentGroup] = std::vector<std::string>();
-        }
-        else if (!currentGroup.empty())
-        {
-            loadedExercises[currentGroup].push_back(line);
-        }
-    }
+        std::map<std::string, std::vector<std::string>> loadedExercises;
+        std::string line;
+        std::string currentGroup;
 
-    if (!loadedExercises.empty())
-    {
+        while (std::getline(inputFile, line))
+        {
+            if (line.empty())
+            {
+                continue;
+            }
+
+            if (line.front() == '[' && line.back() == ']')
+            {
+                currentGroup = line.substr(1, line.size() - 2);
+                loadedExercises[currentGroup] = std::vector<std::string>();
+            }
+            else if (!currentGroup.empty())
+            {
+                loadedExercises[currentGroup].push_back(line);
+            }
+        }
+
+        if (loadedExercises.empty())
+        {
+            throw "exercises.txt did not contain valid exercise groups.";
+        }
+
         exercises = loadedExercises;
+    }
+    catch (const char *error)
+    {
+        std::cerr << "Exercise file load error: " << error << std::endl;
+        // Keep the default exercise data and create a new file if needed.
+        saveExercisesToFile(fileName);
     }
 }
 
 void MainWindow::saveExercisesToFile(const std::string &fileName) const
 {
-    std::ofstream outputFile(fileName.c_str());
-
-    for (std::map<std::string, std::vector<std::string>>::const_iterator it = exercises.begin();
-         it != exercises.end();
-         ++it)
+    // This try/catch block handles file saving problems for exercises.txt.
+    try
     {
-        outputFile << "[" << it->first << "]\n";
+        // This writes the current exercise library into exercises.txt.
+        std::ofstream outputFile(fileName.c_str());
 
-        for (std::size_t i = 0; i < it->second.size(); ++i)
+        if (!outputFile.is_open())
         {
-            outputFile << it->second[i] << "\n";
+            throw "exercises.txt could not be opened for writing.";
         }
 
-        outputFile << "\n";
+        for (std::map<std::string, std::vector<std::string>>::const_iterator it = exercises.begin();
+             it != exercises.end();
+             ++it)
+        {
+            outputFile << "[" << it->first << "]\n";
+
+            for (std::size_t i = 0; i < it->second.size(); ++i)
+            {
+                outputFile << it->second[i] << "\n";
+            }
+
+            outputFile << "\n";
+        }
+    }
+    catch (const char *error)
+    {
+        std::cerr << "Exercise file save error: " << error << std::endl;
     }
 }

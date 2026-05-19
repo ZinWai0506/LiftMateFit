@@ -5,109 +5,158 @@
 
 #include <QString>
 
+#include <iostream>
 #include <fstream>
 
 ProgressTracker::ProgressTracker()
     : streak(0), totalDays(0)
 {
+    // Start the progress values at zero.
 }
 
 void ProgressTracker::loadFromFile(const std::string &fileName)
 {
-    std::ifstream inputFile(fileName.c_str());
-
-    // If the file is missing, create a simple default one first.
-    if (!inputFile.is_open())
+    // This try/catch block handles file or number-reading errors.
+    try
     {
-        saveToFile(fileName);
-        return;
-    }
+        // This reads saved progress from progress.txt.
+        // It loads simple key-value data, history text, and completed dates.
+        std::ifstream inputFile(fileName.c_str());
 
-    int loadedStreak = 0;
-    int loadedTotalDays = 0;
-    std::vector<std::string> loadedHistory;
-    std::vector<QDate> loadedDates;
-    std::string line;
-    std::string currentSection;
-
-    while (std::getline(inputFile, line))
-    {
-        if (line.empty())
+        // If the file is missing, create a simple default one first.
+        if (!inputFile.is_open())
         {
-            continue;
+            throw "progress.txt could not be opened.";
         }
 
-        if (line.front() == '[' && line.back() == ']')
-        {
-            currentSection = line.substr(1, line.size() - 2);
-        }
-        else if (currentSection == "Progress")
-        {
-            std::size_t equalPosition = line.find('=');
+        int loadedStreak = 0;
+        int loadedTotalDays = 0;
+        std::vector<std::string> loadedHistory;
+        std::vector<QDate> loadedDates;
+        std::string line;
+        std::string currentSection;
 
-            if (equalPosition == std::string::npos)
+        // Read the file one line at a time.
+        while (std::getline(inputFile, line))
+        {
+            if (line.empty())
             {
                 continue;
             }
 
-            std::string key = line.substr(0, equalPosition);
-            std::string value = line.substr(equalPosition + 1);
+            if (line.front() == '[' && line.back() == ']')
+            {
+                // Section titles such as [Progress] or [History]
+                // tell the program what kind of data comes next.
+                currentSection = line.substr(1, line.size() - 2);
+            }
+            else if (currentSection == "Progress")
+            {
+                // Example line: streak=3
+                std::size_t equalPosition = line.find('=');
 
-            if (key == "streak")
-            {
-                loadedStreak = std::stoi(value);
-            }
-            else if (key == "totalDays")
-            {
-                loadedTotalDays = std::stoi(value);
-            }
-        }
-        else if (currentSection == "History")
-        {
-            loadedHistory.push_back(line);
-        }
-        else if (currentSection == "Dates")
-        {
-            QDate loadedDate = QDate::fromString(QString::fromStdString(line), "yyyy-MM-dd");
+                if (equalPosition == std::string::npos)
+                {
+                    continue;
+                }
 
-            if (loadedDate.isValid())
+                std::string key = line.substr(0, equalPosition);
+                std::string value = line.substr(equalPosition + 1);
+
+                // stoi can throw if the file contains bad number text.
+                if (key == "streak")
+                {
+                    loadedStreak = std::stoi(value);
+                }
+                else if (key == "totalDays")
+                {
+                    loadedTotalDays = std::stoi(value);
+                }
+            }
+            else if (currentSection == "History")
             {
-                loadedDates.push_back(loadedDate);
+                loadedHistory.push_back(line);
+            }
+            else if (currentSection == "Dates")
+            {
+                // Convert plain text into a QDate object.
+                QDate loadedDate = QDate::fromString(QString::fromStdString(line), "yyyy-MM-dd");
+
+                if (loadedDate.isValid())
+                {
+                    loadedDates.push_back(loadedDate);
+                }
             }
         }
+
+        streak = loadedStreak;
+        totalDays = loadedTotalDays;
+        history = loadedHistory;
+        completedDates = loadedDates;
     }
-
-    streak = loadedStreak;
-    totalDays = loadedTotalDays;
-    history = loadedHistory;
-    completedDates = loadedDates;
+    catch (const std::exception &error)
+    {
+        std::cerr << "ProgressTracker load error: " << error.what() << std::endl;
+        streak = 0;
+        totalDays = 0;
+        history.clear();
+        completedDates.clear();
+        saveToFile(fileName);
+    }
+    catch (const char *error)
+    {
+        std::cerr << "ProgressTracker load error: " << error << std::endl;
+        streak = 0;
+        totalDays = 0;
+        history.clear();
+        completedDates.clear();
+        saveToFile(fileName);
+    }
 }
 
 void ProgressTracker::saveToFile(const std::string &fileName) const
 {
-    std::ofstream outputFile(fileName.c_str());
-
-    outputFile << "[Progress]\n";
-    outputFile << "streak=" << streak << "\n";
-    outputFile << "totalDays=" << totalDays << "\n\n";
-
-    outputFile << "[History]\n";
-
-    for (std::size_t i = 0; i < history.size(); ++i)
+    // This try/catch block handles file errors while saving progress.
+    try
     {
-        outputFile << history[i] << "\n";
+        // This writes the current progress values back into progress.txt.
+        std::ofstream outputFile(fileName.c_str());
+
+        if (!outputFile.is_open())
+        {
+            throw "progress.txt could not be opened for writing.";
+        }
+
+        // Save basic number values first.
+        outputFile << "[Progress]\n";
+        outputFile << "streak=" << streak << "\n";
+        outputFile << "totalDays=" << totalDays << "\n\n";
+
+        outputFile << "[History]\n";
+
+        // Save each completed workout message.
+        for (std::size_t i = 0; i < history.size(); ++i)
+        {
+            outputFile << history[i] << "\n";
+        }
+
+        outputFile << "\n[Dates]\n";
+
+        // Save each date in a fixed text format.
+        for (std::size_t i = 0; i < completedDates.size(); ++i)
+        {
+            outputFile << completedDates[i].toString("yyyy-MM-dd").toStdString() << "\n";
+        }
     }
-
-    outputFile << "\n[Dates]\n";
-
-    for (std::size_t i = 0; i < completedDates.size(); ++i)
+    catch (const char *error)
     {
-        outputFile << completedDates[i].toString("yyyy-MM-dd").toStdString() << "\n";
+        std::cerr << "ProgressTracker save error: " << error << std::endl;
     }
 }
 
 void ProgressTracker::completeDay(const std::string &dayName, const QDate &date)
 {
+    // This updates all progress values when one workout is completed.
     streak++;
     totalDays++;
     history.push_back(dayName);
@@ -121,6 +170,7 @@ int ProgressTracker::getStreak() const
 
 int ProgressTracker::getThisWeekCount() const
 {
+    // Count how many completed dates belong to the current calendar week.
     QDate today = QDate::currentDate();
     int currentYear = 0;
     int currentWeek = today.weekNumber(&currentYear);
@@ -128,6 +178,7 @@ int ProgressTracker::getThisWeekCount() const
 
     for (std::size_t i = 0; i < completedDates.size(); ++i)
     {
+        // weekNumber gives the calendar week for each saved date.
         int completedYear = 0;
         int completedWeek = completedDates[i].weekNumber(&completedYear);
 

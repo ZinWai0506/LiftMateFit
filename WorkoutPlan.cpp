@@ -6,10 +6,13 @@
 WorkoutPlan::WorkoutPlan()
     : currentDay(1)
 {
+    // The workout cycle always starts from Day 1.
 }
 
 std::string WorkoutPlan::getDayPlan(int days) const
 {
+    // const means this function only reads data.
+    // It does not change currentDay.
     if (days == 3)
     {
         return "Full Body";
@@ -52,6 +55,8 @@ std::string WorkoutPlan::getDayPlan(int days) const
 
 std::vector<std::string> WorkoutPlan::getExercises(int days, const std::string &type) const
 {
+    // This function returns a vector of strings.
+    // A vector is a list that can hold multiple exercise names.
     if (type == "Home")
     {
         if (days == 3)
@@ -126,8 +131,11 @@ std::vector<std::string> WorkoutPlan::getExercises(int days, const std::string &
 
 void WorkoutPlan::nextDay(int days)
 {
+    // Move to the next workout day.
     currentDay++;
 
+    // If the current day goes past the selected plan,
+    // loop back to Day 1 again.
     if (currentDay > days)
     {
         currentDay = 1;
@@ -136,5 +144,6 @@ void WorkoutPlan::nextDay(int days)
 
 int WorkoutPlan::getCurrentDay() const
 {
+    // Return the current workout day number.
     return currentDay;
 }

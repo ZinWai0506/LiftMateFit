@@ -4,27 +4,32 @@
 #ifndef USER_H
 #define USER_H
 
+#include "Profile.h"
+
 #include <string>
 
-class User
+using namespace std;
+
+// User uses inheritance here.
+// It gets age, height, and weight from the Profile base class.
+class User : public Profile
 {
 public:
+    // This constructor sets default values when a User object is first created.
     User();
 
     // This function saves all user values at one time.
+    // It is related to the input page and the Generate Plan button.
     void setData(int newAge,
                  double newHeight,
                  double newWeight,
-                 const std::string &newGoal,
+                 const string &newGoal,
                  int newDays,
-                 const std::string &newType);
+                 const string &newType);
 
-    int age;
-    double height;
-    double weight;
-    std::string goal;
+    string goal;
     int days;
-    std::string type;
+    string type;
 };
 
 #endif
